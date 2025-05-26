@@ -1,6 +1,6 @@
-import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { useTheme } from '@mui/material/styles';
+import { useState } from "react"
+import { useNavigate } from "react-router-dom"
+import { useTheme, alpha } from "@mui/material/styles"
 import {
   AppBar,
   Toolbar,
@@ -14,107 +14,181 @@ import {
   ListItemIcon,
   Tooltip,
   Badge,
-} from '@mui/material';
+  InputBase,
+} from "@mui/material"
 import {
   Menu as MenuIcon,
   Settings as SettingsIcon,
   Logout as LogoutIcon,
   Person as PersonIcon,
-} from '@mui/icons-material';
-import { useAuth } from '../../context/AuthContext';
+  Search as SearchIcon,
+  Notifications as NotificationsIcon,
+  DarkMode as DarkModeIcon,
+  LightMode as LightModeIcon,
+} from "@mui/icons-material"
+import { useAuth } from "../../context/AuthContext"
 
-const Navbar = ({ onMenuClick }) => {
-  const theme = useTheme();
-  const navigate = useNavigate();
-  const { user, logout } = useAuth();
-  const [anchorEl, setAnchorEl] = useState(null);
-  // Removed notifications state as it's no longer needed
+const Navbar = ({ onMenuClick, darkMode, toggleDarkMode }) => {
+  const theme = useTheme()
+  const navigate = useNavigate()
+  const { user, logout } = useAuth()
+  const [anchorEl, setAnchorEl] = useState(null)
+  const [notificationsAnchorEl, setNotificationsAnchorEl] = useState(null)
 
   const handleProfileMenuOpen = (event) => {
-    setAnchorEl(event.currentTarget);
-  };
+    setAnchorEl(event.currentTarget)
+  }
 
   const handleMenuClose = () => {
-    setAnchorEl(null);
-  };
+    setAnchorEl(null)
+  }
+
+  const handleNotificationsOpen = (event) => {
+    setNotificationsAnchorEl(event.currentTarget)
+  }
+
+  const handleNotificationsClose = () => {
+    setNotificationsAnchorEl(event.currentTarget)
+  }
 
   const handleLogout = () => {
-    handleMenuClose();
-    logout();
-    navigate('/login');
-  };
+    handleMenuClose()
+    logout()
+    navigate("/login")
+  }
 
   const handleProfile = () => {
-    handleMenuClose();
-    navigate('/profile');
-  };
+    handleMenuClose()
+    navigate("/profile")
+  }
 
   const handleSettings = () => {
-    handleMenuClose();
-    navigate('/settings');
-  };
+    handleMenuClose()
+    navigate("/settings")
+  }
 
-  const open = Boolean(anchorEl);
-  const id = open ? 'account-menu' : undefined;
+  const open = Boolean(anchorEl)
+  const notificationsOpen = Boolean(notificationsAnchorEl)
 
   return (
     <AppBar
       position="fixed"
+      elevation={0}
       sx={{
-        width: '100%',
+        width: "100%",
         left: 0,
         right: 0,
-        transition: theme.transitions.create(['margin', 'width'], {
+        transition: theme.transitions.create(["margin", "width"], {
           easing: theme.transitions.easing.sharp,
           duration: theme.transitions.duration.leavingScreen,
         }),
-        ...(theme.direction === 'ltr' && {
-          width: { md: '100%' },
+        ...(theme.direction === "ltr" && {
+          width: { md: "100%" },
         }),
-        boxShadow: '0 1px 3px rgba(0,0,0,0.12)',
-        backgroundColor: 'background.paper',
-        color: 'text.primary',
+        boxShadow: "0 1px 10px rgba(0,0,0,0.08)",
+        backdropFilter: "blur(8px)",
+        backgroundColor: alpha(theme.palette.background.paper, 0.9),
+        color: theme.palette.text.primary,
         zIndex: theme.zIndex.drawer + 1,
+        borderBottom: `1px solid ${alpha(theme.palette.divider, 0.1)}`,
       }}
     >
-      <Toolbar>
+      <Toolbar sx={{ px: { xs: 2, sm: 3 } }}>
         <IconButton
           color="inherit"
           aria-label="open drawer"
           edge="start"
           onClick={onMenuClick}
-          sx={{ mr: 2 }}
+          sx={{
+            mr: 2,
+            borderRadius: 1.5,
+            "&:hover": {
+              backgroundColor: alpha(theme.palette.primary.main, 0.1),
+            },
+          }}
         >
           <MenuIcon />
         </IconButton>
-        <Typography variant="h6" noWrap component="div" sx={{ flexGrow: 1 }}>
-          Student Management System
+
+        <Typography
+          variant="h6"
+          noWrap
+          component="div"
+          sx={{
+            flexGrow: 1,
+            fontWeight: 600,
+            display: "flex",
+            alignItems: "center",
+            gap: 1,
+          }}
+        >
+          <Box
+            component="span"
+            sx={{
+              display: "inline-flex",
+              alignItems: "center",
+              justifyContent: "center",
+              width: 32,
+              height: 32,
+              borderRadius: 1,
+              backgroundColor: theme.palette.primary.main,
+              color: "#fff",
+              fontWeight: 700,
+              fontSize: "1rem",
+              mr: 1,
+            }}
+          >
+            M
+          </Box>
+          <Box component="span" sx={{ display: { xs: "none", sm: "block" } }}>
+            Mentorly
+          </Box>
         </Typography>
 
-        <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+      
+
+        <Box sx={{ display: "flex", alignItems: "center", gap: { xs: 1, sm: 2 } }}>
+                  
+          {/* User Profile */}
           <Box
-            sx={{ display: 'flex', alignItems: 'center', cursor: 'pointer' }}
+            sx={{
+              display: "flex",
+              alignItems: "center",
+              cursor: "pointer",
+              borderRadius: 2,
+              p: 0.5,
+              pl: 1,
+              "&:hover": {
+                backgroundColor: alpha(theme.palette.primary.main, 0.1),
+              },
+            }}
             onClick={handleProfileMenuOpen}
           >
             <Avatar
-              alt={user?.name || 'User'}
+              alt={user?.name || "User"}
               src={user?.avatar}
-              sx={{ width: 36, height: 36, bgcolor: theme.palette.primary.main }}
+              sx={{
+                width: 36,
+                height: 36,
+                bgcolor: theme.palette.primary.main,
+                boxShadow: "0 2px 8px rgba(0,0,0,0.15)",
+              }}
             >
-              {(user?.name || 'U').charAt(0).toUpperCase()}
+              {(user?.name || "U").charAt(0).toUpperCase()}
             </Avatar>
-            <Box sx={{ ml: 1, display: { xs: 'none', md: 'block' } }}>
-              <Typography variant="subtitle2" noWrap>
-                {user?.name || 'User'}
+            <Box sx={{ ml: 1, display: { xs: "none", md: "block" } }}>
+              <Typography variant="subtitle2" noWrap fontWeight={600}>
+                {user?.name || "User"}
               </Typography>
-              <Typography variant="caption" color="textSecondary">
-                {user?.role || 'Admin'}
+              <Typography variant="caption" color="text.secondary">
+                {user?.role || "Admin"}
               </Typography>
             </Box>
           </Box>
         </Box>
       </Toolbar>
 
+      {/* Profile Menu */}
       <Menu
         anchorEl={anchorEl}
         id="account-menu"
@@ -124,54 +198,65 @@ const Navbar = ({ onMenuClick }) => {
         PaperProps={{
           elevation: 0,
           sx: {
-            overflow: 'visible',
-            filter: 'drop-shadow(0px 2px 8px rgba(0,0,0,0.15))',
+            overflow: "visible",
+            filter: "drop-shadow(0px 2px 8px rgba(0,0,0,0.15))",
             mt: 1.5,
-            '& .MuiAvatar-root': {
+            borderRadius: 2,
+            minWidth: 180,
+            "& .MuiAvatar-root": {
               width: 32,
               height: 32,
               ml: -0.5,
               mr: 1,
             },
-            '&:before': {
+            "&:before": {
               content: '""',
-              display: 'block',
-              position: 'absolute',
+              display: "block",
+              position: "absolute",
               top: 0,
               right: 14,
               width: 10,
               height: 10,
-              bgcolor: 'background.paper',
-              transform: 'translateY(-50%) rotate(45deg)',
+              bgcolor: "background.paper",
+              transform: "translateY(-50%) rotate(45deg)",
               zIndex: 0,
             },
           },
         }}
-        transformOrigin={{ horizontal: 'right', vertical: 'top' }}
-        anchorOrigin={{ horizontal: 'right', vertical: 'bottom' }}
+        transformOrigin={{ horizontal: "right", vertical: "top" }}
+        anchorOrigin={{ horizontal: "right", vertical: "bottom" }}
       >
-        <MenuItem onClick={handleProfile}>
+        <Box sx={{ px: 2, py: 1 }}>
+          <Typography variant="subtitle2" fontWeight={600}>
+            {user?.name || "User"}
+          </Typography>
+          <Typography variant="caption" color="text.secondary">
+            {user?.email || "user@example.com"}
+          </Typography>
+        </Box>
+        <Divider />
+        <MenuItem onClick={handleProfile} sx={{ py: 1.5 }}>
           <ListItemIcon>
             <PersonIcon fontSize="small" />
           </ListItemIcon>
           Profile
         </MenuItem>
-        <MenuItem onClick={handleSettings}>
+        <MenuItem onClick={handleSettings} sx={{ py: 1.5 }}>
           <ListItemIcon>
             <SettingsIcon fontSize="small" />
           </ListItemIcon>
           Settings
         </MenuItem>
         <Divider />
-        <MenuItem onClick={handleLogout}>
+        <MenuItem onClick={handleLogout} sx={{ py: 1.5 }}>
           <ListItemIcon>
-            <LogoutIcon fontSize="small" />
+            <LogoutIcon fontSize="small" color="error" />
           </ListItemIcon>
-          Logout
+          <Typography color="error">Logout</Typography>
         </MenuItem>
       </Menu>
     </AppBar>
-  );
-};
+  )
+}
 
-export default Navbar;
+export default Navbar

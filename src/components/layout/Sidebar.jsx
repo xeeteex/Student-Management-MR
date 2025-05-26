@@ -1,6 +1,6 @@
-import { useState, useEffect } from 'react';
-import { useLocation, useNavigate } from 'react-router-dom';
-import { useTheme, styled } from '@mui/material/styles';
+import { useState, useEffect } from "react"
+import { useLocation, useNavigate } from "react-router-dom"
+import { useTheme, alpha } from "@mui/material/styles"
 import {
   Drawer,
   Box,
@@ -13,165 +13,190 @@ import {
   Typography,
   Divider,
   IconButton,
-  alpha,
-} from '@mui/material';
+  Avatar,
+} from "@mui/material"
 import {
   Dashboard as DashboardIcon,
   People as PeopleIcon,
   School as SchoolIcon,
-  Assessment as AssessmentIcon,
   Settings as SettingsIcon,
   ExpandLess,
   ExpandMore,
   ChevronLeft,
   ChevronRight,
-  Menu as MenuIcon,
-} from '@mui/icons-material';
+  CalendarMonth as CalendarIcon,
+  Folder as FolderIcon,
+  Help as HelpIcon,
+} from "@mui/icons-material"
+import { useAuth } from "../../context/AuthContext"
 
-const drawerWidth = 260;
+const drawerWidth = 260
 
-const DrawerHeader = styled('div')(({ theme }) => ({
-  display: 'flex',
-  alignItems: 'center',
-  padding: theme.spacing(0, 1),
-  ...theme.mixins.toolbar,
-  justifyContent: 'flex-end',
-}));
-
-const menuItems = [
-  {
-    text: 'Dashboard',
-    icon: <DashboardIcon />,
-    path: '/dashboard',
-  },
-  {
-    text: 'Students',
-    icon: <PeopleIcon />,
-    path: '/students',
-    subItems: [
-      { text: 'All Students', path: '/students' },
-      { text: 'Add New', path: '/students/new' },
-    ],
-  },
-  {
-    text: 'Courses',
-    icon: <SchoolIcon />,
-    path: '/courses',
-  },
-  {
-    text: 'Reports',
-    icon: <AssessmentIcon />,
-    path: '/reports',
-  },
-  {
-    text: 'Settings',
-    icon: <SettingsIcon />,
-    path: '/settings',
-  },
-];
-
-const Sidebar = ({ open, onClose, onTransitionEnd, drawerWidth, variant = 'persistent' }) => {
-  const theme = useTheme();
-  const location = useLocation();
-  const navigate = useNavigate();
-  const [expandedItems, setExpandedItems] = useState({});
+const Sidebar = ({ open, onClose, onTransitionEnd, drawerWidth, variant = "persistent" }) => {
+  const theme = useTheme()
+  const location = useLocation()
+  const navigate = useNavigate()
+  const { user, logout } = useAuth()
+  const [expandedItems, setExpandedItems] = useState({})
 
   useEffect(() => {
     // Expand the parent menu item if the current path matches any submenu item
-    const currentPath = location.pathname;
-    const newExpandedItems = { ...expandedItems };
+    const currentPath = location.pathname
+    const newExpandedItems = { ...expandedItems }
 
     menuItems.forEach((item) => {
       if (item.subItems) {
-        const isActive = item.subItems.some(
-          (subItem) => subItem.path === currentPath
-        );
+        const isActive = item.subItems.some((subItem) => subItem.path === currentPath)
         if (isActive) {
-          newExpandedItems[item.text] = true;
+          newExpandedItems[item.text] = true
         }
       }
-    });
+    })
 
-    setExpandedItems(newExpandedItems);
-  }, [location.pathname]);
+    setExpandedItems(newExpandedItems)
+  }, [location.pathname])
 
   const handleItemClick = (item) => {
     if (item.subItems) {
       setExpandedItems((prev) => ({
         ...prev,
         [item.text]: !prev[item.text],
-      }));
+      }))
     } else {
-      navigate(item.path);
-      if (onClose) onClose();
+      navigate(item.path)
+      if (onClose && variant === "temporary") onClose()
     }
-  };
+  }
 
   const isActive = (path, exact = false) => {
     if (exact) {
-      return location.pathname === path;
+      return location.pathname === path
     }
-    return location.pathname.startsWith(path);
-  };
+    return location.pathname.startsWith(path)
+  }
+
+  const menuItems = [
+    {
+      text: "Dashboard",
+      icon: <DashboardIcon />,
+      path: "/",
+    },
+    {
+      text: "Students",
+      icon: <PeopleIcon />,
+      path: "/students",
+      subItems: [
+        { text: "All Students", path: "/students" },
+        { text: "Add New", path: "/students/new" },
+      ],
+    },
+    {
+      text: "Courses",
+      icon: <SchoolIcon />,
+      path: "/courses",
+    },
+    {
+      text: "Calendar",
+      icon: <CalendarIcon />,
+      path: "/calendar",
+    },
+
+    {
+      text: "Documents",
+      icon: <FolderIcon />,
+      path: "/documents",
+    },
+  ]
+
+  const bottomMenuItems = [
+    {
+      text: "Settings",
+      icon: <SettingsIcon />,
+      path: "/settings",
+    },
+    {
+      text: "Help & Support",
+      icon: <HelpIcon />,
+      path: "/help",
+    },
+  ]
 
   const drawer = (
     <Box
       sx={{
-        display: 'flex',
-        flexDirection: 'column',
-        height: '100%',
-        overflow: 'hidden',
+        display: "flex",
+        flexDirection: "column",
+        height: "100%",
+        overflow: "hidden",
+        backgroundColor: theme.palette.background.paper,
       }}
     >
-      <DrawerHeader>
-        <Box sx={{ display: 'flex', alignItems: 'center', width: '100%', justifyContent: 'space-between' }}>
-          <Typography variant="h6" sx={{ ml: 2, fontWeight: 600 }}>
+      {/* Drawer Header with Logo */}
+      <Box
+        sx={{
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "space-between",
+          p: 2,
+          height: 64,
+          borderBottom: `1px solid ${alpha(theme.palette.divider, 0.1)}`,
+        }}
+      >
+        <Box sx={{ display: "flex", alignItems: "center" }}>
+          <Box
+            sx={{
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              width: 36,
+              height: 36,
+              borderRadius: 1.5,
+              backgroundColor: theme.palette.primary.main,
+              color: "#fff",
+              fontWeight: 700,
+              fontSize: "1.2rem",
+              mr: 1.5,
+            }}
+          >
+            S
+          </Box>
+          <Typography variant="h6" fontWeight={600}>
             Student MS
           </Typography>
-          <IconButton onClick={onClose}>
-            {theme.direction === 'ltr' ? <ChevronLeft /> : <ChevronRight />}
-          </IconButton>
         </Box>
-      </DrawerHeader>
-      <Divider />
-      <Box sx={{ overflowY: 'auto', flex: 1 }}>
+        <IconButton onClick={onClose} sx={{ borderRadius: 1.5 }}>
+          {theme.direction === "ltr" ? <ChevronLeft /> : <ChevronRight />}
+        </IconButton>
+      </Box>
+
+      {/* Main Menu Items */}
+      <Box sx={{ overflowY: "auto", flex: 1, px: 1.5, py: 2 }}>
         <List disablePadding>
           {menuItems.map((item) => (
-            <div key={item.text}>
+            <Box key={item.text} sx={{ mb: 0.5 }}>
               <ListItem disablePadding>
                 <ListItemButton
                   onClick={() => handleItemClick(item)}
                   selected={isActive(item.path) && !item.subItems}
                   sx={{
-                    '&.Mui-selected': {
-                      backgroundColor: alpha(
-                        theme.palette.primary.main,
-                        0.1
-                      ),
-                      borderRight: `3px solid ${theme.palette.primary.main}`,
-                      '&:hover': {
-                        backgroundColor: alpha(
-                          theme.palette.primary.main,
-                          0.15
-                        ),
+                    borderRadius: 2,
+                    mb: 0.5,
+                    "&.Mui-selected": {
+                      backgroundColor: alpha(theme.palette.primary.main, 0.1),
+                      "&:hover": {
+                        backgroundColor: alpha(theme.palette.primary.main, 0.15),
                       },
                     },
-                    '&:hover': {
-                      backgroundColor: alpha(
-                        theme.palette.action.hover,
-                        0.05
-                      ),
+                    "&:hover": {
+                      backgroundColor: alpha(theme.palette.action.hover, 0.05),
                     },
-                    py: 1.5,
-                    px: 3,
+                    py: 1,
                   }}
                 >
                   <ListItemIcon
                     sx={{
                       minWidth: 40,
-                      color: isActive(item.path) && !item.subItems
-                        ? theme.palette.primary.main
-                        : 'inherit',
+                      color: isActive(item.path) && !item.subItems ? theme.palette.primary.main : "inherit",
                     }}
                   >
                     {item.icon}
@@ -180,62 +205,45 @@ const Sidebar = ({ open, onClose, onTransitionEnd, drawerWidth, variant = 'persi
                     primary={item.text}
                     primaryTypographyProps={{
                       fontWeight: isActive(item.path) ? 600 : 400,
+                      color: isActive(item.path) && !item.subItems ? theme.palette.primary.main : "inherit",
                     }}
                   />
-                  {item.subItems &&
-                    (expandedItems[item.text] ? (
-                      <ExpandLess />
-                    ) : (
-                      <ExpandMore />
-                    ))}
+                  {item.subItems && (expandedItems[item.text] ? <ExpandLess /> : <ExpandMore />)}
                 </ListItemButton>
               </ListItem>
               {item.subItems && (
-                <Collapse
-                  in={expandedItems[item.text]}
-                  timeout="auto"
-                  unmountOnExit
-                >
+                <Collapse in={expandedItems[item.text]} timeout="auto" unmountOnExit>
                   <List component="div" disablePadding>
                     {item.subItems.map((subItem) => (
                       <ListItem key={subItem.text} disablePadding>
                         <ListItemButton
                           onClick={() => {
-                            navigate(subItem.path);
-                            if (onClose) onClose();
+                            navigate(subItem.path)
+                            if (onClose && variant === "temporary") onClose()
                           }}
                           selected={isActive(subItem.path, true)}
                           sx={{
-                            pl: 8,
-                            py: 1.25,
-                            '&.Mui-selected': {
-                              backgroundColor: alpha(
-                                theme.palette.primary.main,
-                                0.1
-                              ),
-                              '&:hover': {
-                                backgroundColor: alpha(
-                                  theme.palette.primary.main,
-                                  0.15
-                                ),
+                            pl: 6,
+                            py: 0.75,
+                            borderRadius: 2,
+                            mb: 0.5,
+                            "&.Mui-selected": {
+                              backgroundColor: alpha(theme.palette.primary.main, 0.1),
+                              "&:hover": {
+                                backgroundColor: alpha(theme.palette.primary.main, 0.15),
                               },
                             },
-                            '&:hover': {
-                              backgroundColor: alpha(
-                                theme.palette.action.hover,
-                                0.05
-                              ),
+                            "&:hover": {
+                              backgroundColor: alpha(theme.palette.action.hover, 0.05),
                             },
                           }}
                         >
                           <ListItemText
                             primary={subItem.text}
                             primaryTypographyProps={{
-                              fontSize: '0.875rem',
+                              fontSize: "0.875rem",
                               fontWeight: isActive(subItem.path, true) ? 600 : 400,
-                              color: isActive(subItem.path, true)
-                                ? theme.palette.primary.main
-                                : 'inherit',
+                              color: isActive(subItem.path, true) ? theme.palette.primary.main : "inherit",
                             }}
                           />
                         </ListItemButton>
@@ -244,12 +252,56 @@ const Sidebar = ({ open, onClose, onTransitionEnd, drawerWidth, variant = 'persi
                   </List>
                 </Collapse>
               )}
-            </div>
+            </Box>
+          ))}
+        </List>
+      </Box>
+
+      {/* Bottom Menu Items */}
+      <Box sx={{ px: 1.5, pb: 2 }}>
+        <Divider sx={{ my: 2 }} />
+        <List disablePadding>
+          {bottomMenuItems.map((item) => (
+            <ListItem key={item.text} disablePadding sx={{ mb: 0.5 }}>
+              <ListItemButton
+                onClick={() => handleItemClick(item)}
+                selected={isActive(item.path)}
+                sx={{
+                  borderRadius: 2,
+                  "&.Mui-selected": {
+                    backgroundColor: alpha(theme.palette.primary.main, 0.1),
+                    "&:hover": {
+                      backgroundColor: alpha(theme.palette.primary.main, 0.15),
+                    },
+                  },
+                  "&:hover": {
+                    backgroundColor: alpha(theme.palette.action.hover, 0.05),
+                  },
+                  py: 1,
+                }}
+              >
+                <ListItemIcon
+                  sx={{
+                    minWidth: 40,
+                    color: isActive(item.path) ? theme.palette.primary.main : "inherit",
+                  }}
+                >
+                  {item.icon}
+                </ListItemIcon>
+                <ListItemText
+                  primary={item.text}
+                  primaryTypographyProps={{
+                    fontWeight: isActive(item.path) ? 600 : 400,
+                    color: isActive(item.path) ? theme.palette.primary.main : "inherit",
+                  }}
+                />
+              </ListItemButton>
+            </ListItem>
           ))}
         </List>
       </Box>
     </Box>
-  );
+  )
 
   return (
     <Box
@@ -257,7 +309,7 @@ const Sidebar = ({ open, onClose, onTransitionEnd, drawerWidth, variant = 'persi
       sx={{
         width: { md: open ? drawerWidth : 0 },
         flexShrink: { md: 0 },
-        height: '100vh',
+        height: "100vh",
       }}
     >
       <Drawer
@@ -269,13 +321,13 @@ const Sidebar = ({ open, onClose, onTransitionEnd, drawerWidth, variant = 'persi
           keepMounted: true, // Better open performance on mobile
         }}
         sx={{
-          '& .MuiDrawer-paper': {
+          "& .MuiDrawer-paper": {
             width: drawerWidth,
-            boxSizing: 'border-box',
-            borderRight: 'none',
-            boxShadow: theme.shadows[8],
-            [theme.breakpoints.down('md')]: {
-              width: '100%',
+            boxSizing: "border-box",
+            borderRight: "none",
+            boxShadow: "0 0 20px rgba(0,0,0,0.05)",
+            [theme.breakpoints.down("md")]: {
+              width: "100%",
               maxWidth: drawerWidth,
             },
           },
@@ -284,7 +336,7 @@ const Sidebar = ({ open, onClose, onTransitionEnd, drawerWidth, variant = 'persi
         {drawer}
       </Drawer>
     </Box>
-  );
-};
+  )
+}
 
-export default Sidebar;
+export default Sidebar

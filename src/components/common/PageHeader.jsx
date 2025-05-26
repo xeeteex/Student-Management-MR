@@ -6,8 +6,7 @@ import { styled } from '@mui/material/styles';
 const StyledBreadcrumb = styled(Link)(({ theme }) => ({
   display: 'flex',
   alignItems: 'center',
-  color: theme.palette.text.secondary,
-  textDecoration: 'none',
+  color: theme.palette.text.secondary,  textDecoration: 'none',
   '&:hover': {
     color: theme.palette.primary.main,
     textDecoration: 'underline',

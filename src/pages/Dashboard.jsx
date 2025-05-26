@@ -1,63 +1,87 @@
-import { useNavigate } from 'react-router-dom';
-import { useQuery } from '@tanstack/react-query';
+"use client"
+
+import { useNavigate } from "react-router-dom"
+import { useQuery } from "@tanstack/react-query"
 import {
-  Box, Grid, Card, CardContent, Typography, Divider,
-  Table, TableBody, TableCell, TableContainer, TableHead,
-  TableRow, Paper, CircularProgress, useTheme, Skeleton, alpha
-} from '@mui/material';
+  Box,
+  Grid,
+  Card,
+  CardContent,
+  Typography,
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow,
+  Paper,
+  Skeleton,
+  useTheme,
+  useMediaQuery,
+  Avatar,
+  alpha,
+} from "@mui/material"
 import {
   People as PeopleIcon,
   School as SchoolIcon,
   MenuBook as MenuBookIcon,
-} from '@mui/icons-material';
+  ArrowForward as ArrowForwardIcon,
+  Add as AddIcon,
+} from "@mui/icons-material"
+import { AdapterDateFns } from "@mui/x-date-pickers/AdapterDateFns"
+import { LocalizationProvider, DateCalendar } from "@mui/x-date-pickers"
 
 // Custom components
-import PageHeader from '../components/common/PageHeader';
+import PageHeader from "../components/common/PageHeader"
 
 // API services
-import { studentAPI } from '../services/api'; // API client for student data
+import { studentAPI } from "../services/api"
 
 // StatCard - Displays a single statistic with icon and loading state
 const StatCard = ({ title, value, icon: Icon, color, loading = false }) => {
-  const theme = useTheme();
-  
+  const theme = useTheme()
+
   return (
-    <Card sx={{ 
-      height: '100%', 
-      borderRadius: 2, 
-      boxShadow: 2, 
-      p: 3,
-      display: 'flex',
-      flexDirection: 'column',
-      justifyContent: 'center',
-      minHeight: 140
-    }}>
-      <CardContent sx={{ p: 0, '&:last-child': { pb: 0 } }}>
+    <Card
+      sx={{
+        height: "100%",
+        borderRadius: 2,
+        boxShadow: "0 4px 20px rgba(0,0,0,0.05)",
+        p: 3,
+        display: "flex",
+        flexDirection: "column",
+        justifyContent: "center",
+        minHeight: 140,
+        transition: "transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out",
+        "&:hover": {
+          transform: "translateY(-4px)",
+          boxShadow: "0 10px 25px rgba(0,0,0,0.1)",
+        },
+      }}
+    >
+      <CardContent sx={{ p: 0, "&:last-child": { pb: 0 } }}>
         <Box display="flex" alignItems="center">
-          <Box sx={{ 
-            mr: 2,
-            p: 1.5,
-            borderRadius: '50%',
-            bgcolor: alpha(theme.palette[color].main, 0.1),
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center'
-          }}>
-            <Icon 
-              sx={{ 
-                color: theme.palette[color].main,
-                fontSize: 28,
-              }} 
-            />
+          <Box
+            sx={{
+              mr: 2,
+              p: 1.5,
+              borderRadius: "50%",
+              bgcolor: alpha(theme.palette[color].main, 0.15),
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+            }}
+          >
+            <Icon sx={{ color: theme.palette[color].main, fontSize: 32 }} />
           </Box>
           <Box>
-            <Typography variant="subtitle2" color="textSecondary" gutterBottom>
+            <Typography variant="subtitle2" color="text.secondary" gutterBottom>
               {title}
             </Typography>
             {loading ? (
-              <Skeleton variant="text" width={60} height={32} />
+              <Skeleton variant="text" width={60} height={40} />
             ) : (
-              <Typography variant="h4" component="div" sx={{ fontWeight: 600 }}>
+              <Typography variant="h3" component="div" sx={{ fontWeight: 700 }}>
                 {value}
               </Typography>
             )}
@@ -65,237 +89,223 @@ const StatCard = ({ title, value, icon: Icon, color, loading = false }) => {
         </Box>
       </CardContent>
     </Card>
-  );
-};
-
-
+  )
+}
 
 const Dashboard = () => {
-  const theme = useTheme();
-  const navigate = useNavigate();
-  
+  const theme = useTheme()
+  const navigate = useNavigate()
+
   // Fetch students data
   const { data: students = [], isLoading: isLoadingStudents } = useQuery({
-    queryKey: ['students'],  // Unique key for caching
+    queryKey: ["students"],
     queryFn: async () => {
       try {
-        const response = await studentAPI.getAll();
-        return response.data || [];
+        const response = await studentAPI.getAll()
+        return response.data || []
       } catch (error) {
-        console.error('Error fetching students:', error);
-        return [];
+        console.error("Error fetching students:", error)
+        return []
       }
     },
-  });
+  })
 
-  // Process student data to calculate statistics
   const studentsPerCourse = students.reduce((acc, student) => {
     if (student.course) {
-      acc[student.course] = (acc[student.course] || 0) + 1;
+      acc[student.course] = (acc[student.course] || 0) + 1
     }
-    return acc;
-  }, {});
+    return acc
+  }, {})
 
-  // Convert to array and sort by student count
   const sortedCourses = Object.entries(studentsPerCourse)
-    .sort((a, b) => b[1] - a[1])  // Sort by count in descending order
-    .map(([course, count]) => ({ course, count }));
+    .sort((a, b) => b[1] - a[1])
+    .map(([course, count]) => ({ course, count }))
 
-  const totalCourses = sortedCourses.length;
+  const totalCourses = sortedCourses.length
 
-  // Stats configuration for the top cards
   const stats = [
-    { 
-      label: 'Total Students', 
-      value: students.length, 
-      icon: PeopleIcon, 
-      color: 'primary' 
+    {
+      label: "Total Students",
+      value: students.length,
+      icon: PeopleIcon,
+      color: "primary",
     },
-    { 
-      label: 'Total Courses', 
-      value: totalCourses, 
-      icon: SchoolIcon, 
-      color: 'secondary' 
+    {
+      label: "Total Courses",
+      value: totalCourses,
+      icon: SchoolIcon,
+      color: "secondary",
     },
-  ];
+  ]
 
-  // Navigate to students list
-  const handleViewAllStudents = () => {
-    navigate('/students');
-  };
+  const handleViewAllStudents = () => navigate("/students")
+  const handleAddStudent = () => navigate("/students/new")
 
   return (
-    <Box sx={{ p: 0, height: '100%', display: 'flex', flexDirection: 'column' }}>
-      {/* Page Header Section */}
-      <Box sx={{ p: 3, pb: 0 }}>
-        <PageHeader
-          title="Dashboard"
-          subtitle="Welcome back! Here's an overview of your student management system."
-          actions={[
-            {
-              label: 'View All Students',
-              variant: 'outlined',
-              color: 'primary',
-              onClick: handleViewAllStudents,
-            },
-          ]}
-        />
-      </Box>
+    <Box
+      sx={{
+        p: { xs: 2, sm: 3, md: 4 },
+        height: "100%",
+        display: "flex",
+        flexDirection: "column",
+        bgcolor: "#f8f9fa",
+      }}
+    >
+      <PageHeader
+        title="Dashboard"
+        subtitle="Welcome back! Here's an overview of your student management system."
+        breadcrumbs={[{ label: "Dashboard" }]}
+        actions={[
+          {
+            label: "View All Students",
+            variant: "outlined",
+            color: "primary",
+            onClick: handleViewAllStudents,
+            icon: <ArrowForwardIcon />,
+          },
+          {
+            label: "Add Student",
+            variant: "contained",
+            color: "primary",
+            onClick: handleAddStudent,
+            icon: <AddIcon />,
+            to: "/students/new",
+          },
+        ]}
+      />
 
-      {/* Main Content Area - Takes remaining vertical space */}
-      <Box sx={{ 
-        flex: 1,                     
-        p: 3,                        
-        display: 'flex',             
-        flexDirection: 'column',     
-        height: 'calc(100vh - 180px)', 
-        width: '100%',
-        maxWidth: '100%',
-        mx: 'auto'                   
-      }}>
-        {/* Stats Cards Section - Responsive grid of statistics */}
-        <Box sx={{ width: '100%', mb: 3 }}>
-          <Grid container spacing={3} sx={{ m: 0, width: '100%' }}>
-            {stats.map((stat, index) => (
-              <Grid 
-                item 
-                xs={12}  
-                sm={6}   
-                md={3}   
-                key={index}
-              >
-                <StatCard
-                  title={stat.label}
-                  value={stat.value}
-                  icon={stat.icon}
-                  color={stat.color}
-                  loading={isLoadingStudents}
+      {/* Stats Cards + Calendar */}
+      <Grid container spacing={3} sx={{ mb: 4 }}>
+        <Grid item xs={12} md={4}>
+          <StatCard
+            title={stats[0].label}
+            value={stats[0].value}
+            icon={stats[0].icon}
+            color={stats[0].color}
+            loading={isLoadingStudents}
+          />
+        </Grid>
+        <Grid item xs={12} md={4}>
+          <StatCard
+            title={stats[1].label}
+            value={stats[1].value}
+            icon={stats[1].icon}
+            color={stats[1].color}
+            loading={isLoadingStudents}
+          />
+        </Grid>
+        <Grid item xs={12} md={4}>
+          <Card
+            sx={{
+              height: "100%",
+              borderRadius: 2,
+              boxShadow: "0 4px 20px rgba(0,0,0,0.05)",
+              display: "flex",
+              flexDirection: "column",
+              overflow: "hidden",
+              minHeight: 140,
+            }}
+          >
+            <CardContent sx={{ p: 0, height: "100%", "&:last-child": { pb: 0 } }}>
+              <LocalizationProvider dateAdapter={AdapterDateFns}>
+                <DateCalendar
+                  sx={{
+                    width: "100%",
+                    "& .MuiPickersDay-root.Mui-selected": {
+                      backgroundColor: theme.palette.primary.main,
+                    },
+                  }}
                 />
-              </Grid>
-            ))}
-          </Grid>
-        </Box>
-        
-        {/* Students per Course Section - Table in a card */}
-        <Box sx={{ 
-          flex: 1,                    
-          width: '100%', 
-          height: '100%', 
-          overflow: 'hidden'          
-        }}>
-          {/* Main card container */}
-          <Card sx={{ 
-            borderRadius: 2,          
-            boxShadow: 2,             
-            height: '100%',           
-            display: 'flex',          
-            flexDirection: 'column',  
-            width: '100%',            
-            m: 0                      
-          }}>
-            {/* Card content with padding and flex layout */}
-            <CardContent sx={{ 
-              p: 0,                    
-              display: 'flex',         
-              flexDirection: 'column'   
-            }}>
-              {/* Header section with title */}
-              <Box sx={{ p: 3, pb: 2 }}>
-                <Box display="flex" alignItems="center" mb={2}>
-                  <MenuBookIcon color="primary" sx={{ mr: 1 }} /> 
-                  <Typography variant="h6" fontWeight={600}>
-                    Students per Course 
-                  </Typography>
-                </Box>
-                <Divider sx={{ mb: 3 }} /> 
-              </Box>
-              
-              {/* Scrollable content area */}
-              <Box sx={{ 
-                flex: 1,                     
-                overflow: 'auto',          
-                px: 3,                     
-                pb: 3                      
-              }}>
-                {isLoadingStudents ? (
-                  // Loading state with skeleton placeholders
-                  <Box>
-                    {[1, 2, 3].map((item) => (
-                      <Skeleton 
-                        key={item} 
-                        variant="text" 
-                        width="100%" 
-                        height={40} 
-                      />
-                    ))}
-                  </Box>
-                ) : (
-                  // Table with course statistics
-                  <TableContainer 
-                    component={Paper} 
-                    elevation={0}  
-                    sx={{ height: '100%' }}  
-                  >
-                    <Table>
-                      {/* Table header */}
-                      <TableHead>
-                        <TableRow>
-                          <TableCell><strong>Course Name</strong></TableCell>
-                          <TableCell align="right"><strong>Number of Students</strong></TableCell>
-                        </TableRow>
-                      </TableHead>
-                      
-                      {/* Table body */}
-                      <TableBody>
-                        {sortedCourses.length > 0 ? (
-                          // Map through courses to create table rows
-                          sortedCourses.map(({ course, count }) => (
-                            <TableRow 
-                              key={course} 
-                              hover  // Highlight on hover
-                            >
-                              <TableCell>
-                                {course || 'No Course Assigned'}
-                              </TableCell>
-                              <TableCell align="right">
-                                <Box 
-                                  display="flex" 
-                                  alignItems="center" 
-                                  justifyContent="flex-end"
-                                >
-                                  <PeopleIcon 
-                                    fontSize="small" 
-                                    sx={{ 
-                                      mr: 1, 
-                                      color: 'text.secondary' 
-                                    }} 
-                                  />
-                                  {count} 
-                                </Box>
-                              </TableCell>
-                            </TableRow>
-                          ))
-                        ) : (
-                          // Empty state when no courses are available
-                          <TableRow>
-                            <TableCell colSpan={2} align="center">
-                              <Typography color="textSecondary">
-                                No course data available. Add students with course information to see statistics.
-                              </Typography>
-                            </TableCell>
-                          </TableRow>
-                        )}
-                      </TableBody>
-                    </Table>
-                  </TableContainer>
-                )}
-              </Box>
+              </LocalizationProvider>
             </CardContent>
           </Card>
-        </Box>
+        </Grid>
+      </Grid>
+
+      {/* Students per Course Table */}
+      <Box sx={{ width: "100%", overflow: "hidden" }}>
+        <Card
+          sx={{
+            borderRadius: 2,
+            boxShadow: "0 4px 20px rgba(0,0,0,0.05)",
+            height: "100%",
+            display: "flex",
+            flexDirection: "column",
+          }}
+        >
+          <CardContent sx={{ p: 0, display: "flex", flexDirection: "column", height: "100%" }}>
+            <Box sx={{ p: 3, pb: 2, bgcolor: alpha(theme.palette.primary.main, 0.03) }}>
+              <Box display="flex" alignItems="center" mb={1}>
+                <MenuBookIcon color="primary" sx={{ mr: 1.5 }} />
+                <Typography variant="h6" fontWeight={600}>
+                  Students per Course
+                </Typography>
+              </Box>
+            </Box>
+
+            <Box sx={{ flex: 1, overflow: "auto", px: 0, pb: 0 }}>
+              {isLoadingStudents ? (
+                <Box p={3}>
+                  {[1, 2, 3].map((item) => (
+                    <Skeleton key={item} variant="text" width="100%" height={50} sx={{ my: 1 }} />
+                  ))}
+                </Box>
+              ) : (
+                <TableContainer component={Paper} elevation={0}>
+                  <Table>
+                    <TableHead sx={{ bgcolor: alpha(theme.palette.primary.main, 0.03) }}>
+                      <TableRow>
+                        <TableCell sx={{ fontWeight: 600, py: 2 }}>Course Name</TableCell>
+                        <TableCell align="right" sx={{ fontWeight: 600, py: 2 }}>
+                          Number of Students
+                        </TableCell>
+                      </TableRow>
+                    </TableHead>
+                    <TableBody>
+                      {sortedCourses.length > 0 ? (
+                        sortedCourses.map(({ course, count }) => (
+                          <TableRow
+                            key={course}
+                            hover
+                            sx={{
+                              transition: "background-color 0.2s",
+                              cursor: "pointer",
+                            }}
+                          >
+                            <TableCell sx={{ py: 2.5 }}>{course || "No Course Assigned"}</TableCell>
+                            <TableCell align="right" sx={{ py: 2.5 }}>
+                              <Box display="flex" alignItems="center" justifyContent="flex-end">
+                                <PeopleIcon fontSize="small" sx={{ mr: 1, color: theme.palette.primary.main }} />
+                                <Typography fontWeight={500}>{count}</Typography>
+                              </Box>
+                            </TableCell>
+                          </TableRow>
+                        ))
+                      ) : (
+                        <TableRow>
+                          <TableCell colSpan={2} align="center" sx={{ py: 4 }}>
+                            <Box display="flex" flexDirection="column" alignItems="center" p={4}>
+                              <MenuBookIcon sx={{ fontSize: 48, color: "text.disabled", mb: 2 }} />
+                              <Typography color="text.secondary" fontWeight={500}>
+                                No course data available
+                              </Typography>
+                              <Typography color="text.disabled">
+                                Add students with course information to see statistics
+                              </Typography>
+                            </Box>
+                          </TableCell>
+                        </TableRow>
+                      )}
+                    </TableBody>
+                  </Table>
+                </TableContainer>
+              )}
+            </Box>
+          </CardContent>
+        </Card>
       </Box>
     </Box>
-  );
-};
+  )
+}
 
-export default Dashboard;
+export default Dashboard
