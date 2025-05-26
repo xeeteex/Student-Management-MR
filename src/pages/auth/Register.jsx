@@ -26,14 +26,20 @@ import { authAPI } from '../../services/api';
 
 // UI Components from Material-UI
 import {
-  TextField,    // Form input fields
-  Button,       // Interactive button
-  Box,          // Layout component
-  Typography,   // Text display
-  Container,    // Page container
-  Paper,        // Card-like container
-  Alert,        // Error/success messages
+  TextField,         // Form input fields
+  Button,            // Interactive button
+  Box,               // Layout component
+  Typography,        // Text display
+  Container,         // Page container
+  Paper,             // Card-like container
+  Alert,             // Error/success messages
+  Grid,              // Grid layout
+  InputAdornment,    // Input decorations
+  IconButton,        // Clickable icons
 } from '@mui/material';
+
+// Icons from Material-UI  
+import { Visibility, VisibilityOff } from '@mui/icons-material';
 
 /**
  * Register Component
@@ -44,6 +50,8 @@ import {
  * State:
  * - formData: Object containing user registration fields
  * - error: String containing error messages for display
+ * - showPassword: Boolean for password visibility toggle
+ * - showConfirmPassword: Boolean for confirm password visibility toggle
  */
 const Register = () => {
   // Navigation hook for redirecting after registration
@@ -58,8 +66,10 @@ const Register = () => {
     role: 'admin'          // Default role is admin
   });
   
-  // Error state for displaying validation/API errors
+  // UI state management
   const [error, setError] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
   /**
    * Registration Mutation
@@ -127,95 +137,377 @@ const Register = () => {
     }));
   };
 
-  return (
-    <Container component="main" maxWidth="xs">
-      <Box
-        sx={{
-          marginTop: 8,
-          display: 'flex',
-          flexDirection: 'column',
-          alignItems: 'center',
-        }}
-      >
-        <Paper elevation={3} sx={{ p: 4, width: '100%' }}>
-          <Typography component="h1" variant="h5" align="center" gutterBottom>
-            Admin Registration
-          </Typography>
-          
-          {error && (
-            <Alert severity="error" sx={{ mb: 2 }}>
-              {error}
-            </Alert>
-          )}
+  const handleTogglePasswordVisibility = () => {
+    setShowPassword(!showPassword);
+  };
 
-          <Box component="form" onSubmit={handleSubmit} noValidate sx={{ mt: 1 }}>
-            <TextField
-              margin="normal"
-              required
-              fullWidth
-              id="name"
-              label="Full Name"
-              name="name"
-              autoComplete="name"
-              autoFocus
-              value={formData.name}
-              onChange={handleChange}
-            />
-            <TextField
-              margin="normal"
-              required
-              fullWidth
-              id="email"
-              label="Email Address"
-              name="email"
-              autoComplete="email"
-              type="email"
-              value={formData.email}
-              onChange={handleChange}
-            />
-            <TextField
-              margin="normal"
-              required
-              fullWidth
-              name="password"
-              label="Password"
-              type="password"
-              id="password"
-              autoComplete="new-password"
-              value={formData.password}
-              onChange={handleChange}
-            />
-            <TextField
-              margin="normal"
-              required
-              fullWidth
-              name="confirmPassword"
-              label="Confirm Password"
-              type="password"
-              id="confirmPassword"
-              value={formData.confirmPassword}
-              onChange={handleChange}
-            />
-            <Button
-              type="submit"
-              fullWidth
-              variant="contained"
-              sx={{ mt: 3, mb: 2 }}
-              disabled={registerMutation.isPending}
-            >
-              {registerMutation.isPending ? 'Registering...' : 'Register'}
-            </Button>
-            <Box sx={{ textAlign: 'center' }}>
-              <Link to="/login" style={{ textDecoration: 'none' }}>
-                <Typography variant="body2" color="primary">
-                  Already have an account? Sign in
-                </Typography>
-              </Link>
+  const handleToggleConfirmPasswordVisibility = () => {
+    setShowConfirmPassword(!showConfirmPassword);
+  };
+
+  return (
+    <Box 
+      sx={{ 
+        minHeight: '100vh',
+        background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+        display: 'flex',
+        alignItems: 'center',
+      }}
+    >
+      <Container maxWidth="lg" sx={{ py: 4 }}>
+        <Grid container spacing={0} sx={{ minHeight: '80vh' }}>
+          {/* Left Side - Illustration Section */}
+          <Grid 
+            item 
+            xs={12} 
+            md={7} 
+            sx={{
+              background: 'linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%)',
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'center',
+              justifyContent: 'center',
+              position: 'relative',
+              borderRadius: { xs: '16px 16px 0 0', md: '16px 0 0 16px' },
+              p: 4,
+            }}
+          >
+            {/* Mentorly Branding */}
+            <Box sx={{ position: 'absolute', top: 40, left: 40 }}>
+              <Typography 
+                variant="h4" 
+                sx={{ 
+                  fontWeight: 800,
+                  color: '#2563eb',
+                  fontSize: '28px'
+                }}
+              >
+                Mentorly
+              </Typography>
             </Box>
-          </Box>
-        </Paper>
-      </Box>
-    </Container>
+
+            {/* Main Illustration */}
+            <Box
+              sx={{
+                width: '100%',
+                maxWidth: '500px',
+                height: '100%',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                borderRadius: '8px',
+                overflow: 'hidden',
+                boxShadow: '0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)'
+              }}
+            >
+              <img 
+                src="/assets/illustration-register.jpg" 
+                alt="Registration illustration" 
+                style={{
+                  width: '100%',
+                  height: '100%',
+                  objectFit: 'cover',
+                  borderRadius: '8px'
+                }}
+                onError={(e) => {
+                  // Fallback to login illustration if register image doesn't exist
+                  e.target.src = '/assets/illustration-login.jpg';
+                }}
+              />
+            </Box>
+          </Grid>
+
+          {/* Right Side - Registration Form */}
+          <Grid 
+            item 
+            xs={12} 
+            md={5}
+            sx={{
+              background: 'white',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              borderRadius: { xs: '0 0 16px 16px', md: '0 16px 16px 0' },
+              p: 4,
+            }}
+          >
+            <Box sx={{ width: '100%', maxWidth: '520px' }}>
+              {/* Register Header */}
+              <Box sx={{ textAlign: 'center', mb: 4 }}>
+                <Typography 
+                  variant="h5" 
+                  sx={{ 
+                    fontWeight: 600,
+                    color: '#1e293b',
+                    mb: 1,
+                    fontSize: '24px'
+                  }}
+                >
+                  Create Account
+                </Typography>
+                <Typography 
+                  variant="body2" 
+                  sx={{ 
+                    color: '#64748b',
+                    fontSize: '14px'
+                  }}
+                >
+                  Join our platform to get started.
+                </Typography>
+              </Box>
+
+              {/* Error Alert */}
+              {error && (
+                <Alert severity="error" sx={{ width: '100%', mb: 3, borderRadius: '12px' }}>
+                  {error}
+                </Alert>
+              )}
+
+              {/* Registration Form */}
+              <Box
+                component="form"
+                onSubmit={handleSubmit}
+                noValidate
+                sx={{ width: '100%' }}
+              >
+                <TextField
+                  margin="normal"
+                  required
+                  fullWidth
+                  id="name"
+                  label="Full Name"
+                  name="name"
+                  autoComplete="name"
+                  autoFocus
+                  value={formData.name}
+                  onChange={handleChange}
+                  sx={{
+                    mb: 2,
+                    '& .MuiOutlinedInput-root': {
+                      borderRadius: '12px',
+                      height: '56px',
+                      backgroundColor: '#f8fafc',
+                      border: 'none',
+                      '& fieldset': {
+                        border: 'none',
+                      },
+                      '&:hover fieldset': {
+                        border: 'none',
+                      },
+                      '&.Mui-focused fieldset': {
+                        border: '2px solid #2563eb',
+                      },
+                    },
+                    '& .MuiInputLabel-root': {
+                      color: '#94a3b8',
+                      '&.Mui-focused': {
+                        color: '#2563eb',
+                      },
+                    },
+                  }}
+                />
+
+                <TextField
+                  margin="normal"
+                  required
+                  fullWidth
+                  id="email"
+                  label="Email Address"
+                  name="email"
+                  autoComplete="email"
+                  type="email"
+                  value={formData.email}
+                  onChange={handleChange}
+                  sx={{
+                    mb: 2,
+                    '& .MuiOutlinedInput-root': {
+                      borderRadius: '12px',
+                      height: '56px',
+                      backgroundColor: '#f8fafc',
+                      border: 'none',
+                      '& fieldset': {
+                        border: 'none',
+                      },
+                      '&:hover fieldset': {
+                        border: 'none',
+                      },
+                      '&.Mui-focused fieldset': {
+                        border: '2px solid #2563eb',
+                      },
+                    },
+                    '& .MuiInputLabel-root': {
+                      color: '#94a3b8',
+                      '&.Mui-focused': {
+                        color: '#2563eb',
+                      },
+                    },
+                  }}
+                />
+                
+                <TextField
+                  margin="normal"
+                  required
+                  fullWidth
+                  name="password"
+                  label="Password"
+                  type={showPassword ? 'text' : 'password'}
+                  id="password"
+                  autoComplete="new-password"
+                  value={formData.password}
+                  onChange={handleChange}
+                  sx={{
+                    mb: 2,
+                    '& .MuiOutlinedInput-root': {
+                      borderRadius: '12px',
+                      height: '56px',
+                      backgroundColor: '#f8fafc',
+                      border: 'none',
+                      '& fieldset': {
+                        border: 'none',
+                      },
+                      '&:hover fieldset': {
+                        border: 'none',
+                      },
+                      '&.Mui-focused fieldset': {
+                        border: '2px solid #2563eb',
+                      },
+                    },
+                    '& .MuiInputLabel-root': {
+                      color: '#94a3b8',
+                      '&.Mui-focused': {
+                        color: '#2563eb',
+                      },
+                    },
+                  }}
+                  InputProps={{
+                    endAdornment: (
+                      <InputAdornment position="end">
+                        <IconButton
+                          aria-label="toggle password visibility"
+                          onClick={handleTogglePasswordVisibility}
+                          edge="end"
+                        >
+                          {showPassword ? <VisibilityOff /> : <Visibility />}
+                        </IconButton>
+                      </InputAdornment>
+                    ),
+                  }}
+                />
+
+                <TextField
+                  margin="normal"
+                  required
+                  fullWidth
+                  name="confirmPassword"
+                  label="Confirm Password"
+                  type={showConfirmPassword ? 'text' : 'password'}
+                  id="confirmPassword"
+                  value={formData.confirmPassword}
+                  onChange={handleChange}
+                  sx={{
+                    mb: 4,
+                    '& .MuiOutlinedInput-root': {
+                      borderRadius: '12px',
+                      height: '56px',
+                      backgroundColor: '#f8fafc',
+                      border: 'none',
+                      '& fieldset': {
+                        border: 'none',
+                      },
+                      '&:hover fieldset': {
+                        border: 'none',
+                      },
+                      '&.Mui-focused fieldset': {
+                        border: '2px solid #2563eb',
+                      },
+                    },
+                    '& .MuiInputLabel-root': {
+                      color: '#94a3b8',
+                      '&.Mui-focused': {
+                        color: '#2563eb',
+                      },
+                    },
+                  }}
+                  InputProps={{
+                    endAdornment: (
+                      <InputAdornment position="end">
+                        <IconButton
+                          aria-label="toggle confirm password visibility"
+                          onClick={handleToggleConfirmPasswordVisibility}
+                          edge="end"
+                        >
+                          {showConfirmPassword ? <VisibilityOff /> : <Visibility />}
+                        </IconButton>
+                      </InputAdornment>
+                    ),
+                  }}
+                />
+
+                <Button
+                  type="submit"
+                  fullWidth
+                  variant="contained"
+                  size="large"
+                  disabled={registerMutation.isPending}
+                  sx={{
+                    height: '56px',
+                    borderRadius: '12px',
+                    textTransform: 'none',
+                    fontSize: '15px',
+                    fontWeight: 500,
+                    background: '#2563eb',
+                    mb: 4,
+                    '&:hover': {
+                      background: '#1d4ed8',
+                    },
+                    '&:disabled': {
+                      background: '#e2e8f0',
+                      color: '#94a3b8',
+                    },
+                  }}
+                >
+                  {registerMutation.isPending ? 'Creating Account...' : 'Create Account'}
+                </Button>
+
+                {/* Footer Text */}
+                <Box sx={{ textAlign: 'center' }}>
+                  <Typography 
+                    variant="body2" 
+                    sx={{ 
+                      color: '#64748b',
+                      mb: 1
+                    }}
+                  >
+                    Already have an account?
+                  </Typography>
+                  <Link
+                    to="/login"
+                    style={{
+                      color: '#2563eb',
+                      textDecoration: 'none',
+                      fontWeight: 600,
+                    }}
+                  >
+                    <Typography
+                      variant="body2"
+                      sx={{
+                        color: '#2563eb',
+                        fontWeight: 600,
+                        '&:hover': {
+                          textDecoration: 'underline',
+                        },
+                      }}
+                    >
+                      Sign In
+                    </Typography>
+                  </Link>
+                </Box>
+              </Box>
+            </Box>
+          </Grid>
+        </Grid>
+      </Container>
+    </Box>
   );
 };
 
