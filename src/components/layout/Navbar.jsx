@@ -18,9 +18,8 @@ import {
 } from "@mui/material"
 import {
   Menu as MenuIcon,
-  Settings as SettingsIcon,
   Logout as LogoutIcon,
-  Person as PersonIcon,
+  PersonAdd as PersonAddIcon,
   Search as SearchIcon,
   Notifications as NotificationsIcon,
   DarkMode as DarkModeIcon,
@@ -39,6 +38,11 @@ const Navbar = ({ onMenuClick, darkMode, toggleDarkMode }) => {
     setAnchorEl(event.currentTarget)
   }
 
+  const handleRegisterClick = () => {
+    handleMenuClose();
+    navigate('/register');
+  }
+
   const handleMenuClose = () => {
     setAnchorEl(null)
   }
@@ -54,7 +58,7 @@ const Navbar = ({ onMenuClick, darkMode, toggleDarkMode }) => {
   const handleLogout = () => {
     handleMenuClose()
     logout()
-    navigate("/login")
+    navigate("/")
   }
 
   const handleProfile = () => {
@@ -110,40 +114,53 @@ const Navbar = ({ onMenuClick, darkMode, toggleDarkMode }) => {
           <MenuIcon />
         </IconButton>
 
-        <Typography
-          variant="h6"
-          noWrap
-          component="div"
+        <Box
+          onClick={() => navigate('/dashboard')}
           sx={{
             flexGrow: 1,
-            fontWeight: 600,
-            display: "flex",
-            alignItems: "center",
+            display: 'flex',
+            alignItems: 'center',
             gap: 1,
+            cursor: 'pointer',
+            '&:hover': {
+              opacity: 0.8,
+            },
           }}
         >
-          <Box
-            component="span"
+          <Typography
+            variant="h6"
+            noWrap
+            component="div"
             sx={{
-              display: "inline-flex",
+              fontWeight: 600,
+              display: "flex",
               alignItems: "center",
-              justifyContent: "center",
-              width: 32,
-              height: 32,
-              borderRadius: 1,
-              backgroundColor: theme.palette.primary.main,
-              color: "#fff",
-              fontWeight: 700,
-              fontSize: "1rem",
-              mr: 1,
+              gap: 1,
             }}
           >
-            M
-          </Box>
-          <Box component="span" sx={{ display: { xs: "none", sm: "block" } }}>
-            Mentorly
-          </Box>
-        </Typography>
+            <Box
+              component="span"
+              sx={{
+                display: "inline-flex",
+                alignItems: "center",
+                justifyContent: "center",
+                width: 32,
+                height: 32,
+                borderRadius: 1,
+                backgroundColor: theme.palette.primary.main,
+                color: "#fff",
+                fontWeight: 700,
+                fontSize: "1rem",
+                mr: 1,
+              }}
+            >
+              M
+            </Box>
+            <Box component="span" sx={{ display: { xs: "none", sm: "block" } }}>
+              Mentorly
+            </Box>
+          </Typography>
+        </Box>
 
       
 
@@ -235,17 +252,17 @@ const Navbar = ({ onMenuClick, darkMode, toggleDarkMode }) => {
           </Typography>
         </Box>
         <Divider />
-        <MenuItem onClick={handleProfile} sx={{ py: 1.5 }}>
+        <MenuItem 
+          onClick={() => {
+            handleMenuClose();
+            navigate('/register');
+          }} 
+          sx={{ py: 1.5 }}
+        >
           <ListItemIcon>
-            <PersonIcon fontSize="small" />
+            <PersonAddIcon fontSize="small" />
           </ListItemIcon>
-          Profile
-        </MenuItem>
-        <MenuItem onClick={handleSettings} sx={{ py: 1.5 }}>
-          <ListItemIcon>
-            <SettingsIcon fontSize="small" />
-          </ListItemIcon>
-          Settings
+          Register New Account
         </MenuItem>
         <Divider />
         <MenuItem onClick={handleLogout} sx={{ py: 1.5 }}>

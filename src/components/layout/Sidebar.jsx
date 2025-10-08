@@ -79,32 +79,31 @@ const Sidebar = ({ open, onClose, onTransitionEnd, drawerWidth, variant = "persi
     {
       text: "Dashboard",
       icon: <DashboardIcon />,
-      path: "/",
+      path: "/dashboard",
     },
     {
       text: "Students",
       icon: <PeopleIcon />,
-      path: "/students",
+      path: "/dashboard/students",
       subItems: [
-        { text: "All Students", path: "/students" },
-        { text: "Add New", path: "/students/new" },
+        { text: "All Students", path: "/dashboard/students" },
+        { text: "Add New", path: "/dashboard/students/new" },
       ],
     },
     {
       text: "Courses",
       icon: <SchoolIcon />,
-      path: "/courses",
+      path: "/dashboard/courses",
     },
     {
       text: "Calendar",
       icon: <CalendarIcon />,
-      path: "/calendar",
+      path: "/dashboard/calendar",
     },
-
     {
       text: "Documents",
       icon: <FolderIcon />,
-      path: "/documents",
+      path: "/dashboard/documents",
     },
   ]
 
@@ -112,12 +111,12 @@ const Sidebar = ({ open, onClose, onTransitionEnd, drawerWidth, variant = "persi
     {
       text: "Settings",
       icon: <SettingsIcon />,
-      path: "/settings",
+      path: "/dashboard/settings",
     },
     {
       text: "Help & Support",
       icon: <HelpIcon />,
-      path: "/help",
+      path: "/dashboard/help",
     },
   ]
 

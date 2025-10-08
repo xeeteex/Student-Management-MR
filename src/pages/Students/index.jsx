@@ -132,11 +132,16 @@ const Students = () => {
     try {
       setLoading(true);
       const response = await studentAPI.getAll();
-      setStudents(response.data);
-      setFilteredStudents(response.data);
+      // The API returns { success: true, data: [...] }
+      const studentsData = response.data?.data || [];
+      console.log('Fetched students data:', studentsData);
+      setStudents(studentsData);
+      setFilteredStudents(studentsData);
     } catch (error) {
       console.error('Error fetching students:', error);
       enqueueSnackbar('Failed to fetch students', { variant: 'error' });
+      setStudents([]);
+      setFilteredStudents([]);
     } finally {
       setLoading(false);
     }
@@ -176,7 +181,7 @@ const Students = () => {
    * @param {Object} student - Student to be edited
    */
   const handleEditClick = (student) => {
-    navigate(`/students/edit/${student._id}`, { state: { student } });
+    navigate(`/dashboard/students/edit/${student._id}`, { state: { student } });
   };
 
   if (loading) {

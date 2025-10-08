@@ -1,5 +1,3 @@
-"use client"
-
 import { useNavigate } from "react-router-dom"
 import { useQuery } from "@tanstack/react-query"
 import {
@@ -97,12 +95,13 @@ const Dashboard = () => {
   const navigate = useNavigate()
 
   // Fetch students data
-  const { data: students = [], isLoading: isLoadingStudents } = useQuery({
+  const { data: studentsData, isLoading: isLoadingStudents, error } = useQuery({
     queryKey: ["students"],
     queryFn: async () => {
       try {
         const response = await studentAPI.getAll()
-        return response.data || []
+        // The API returns { success: true, data: [...] }
+        return response.data?.data || []
       } catch (error) {
         console.error("Error fetching students:", error)
         return []
@@ -110,8 +109,11 @@ const Dashboard = () => {
     },
   })
 
+  // Ensure students is always an array
+  const students = Array.isArray(studentsData) ? studentsData : [];
+  
   const studentsPerCourse = students.reduce((acc, student) => {
-    if (student.course) {
+    if (student?.course) {
       acc[student.course] = (acc[student.course] || 0) + 1
     }
     return acc
@@ -138,8 +140,8 @@ const Dashboard = () => {
     },
   ]
 
-  const handleViewAllStudents = () => navigate("/students")
-  const handleAddStudent = () => navigate("/students/new")
+  const handleViewAllStudents = () => navigate("/dashboard/students")
+  const handleAddStudent = () => navigate("/dashboard/students/new")
 
   return (
     <Box
@@ -169,7 +171,7 @@ const Dashboard = () => {
             color: "primary",
             onClick: handleAddStudent,
             icon: <AddIcon />,
-            to: "/students/new",
+            to: "/dashboard/students/new",
           },
         ]}
       />

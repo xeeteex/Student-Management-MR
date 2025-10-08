@@ -47,7 +47,7 @@ const NotFound = () => {
             variant="contained"
             color="primary"
             component={RouterLink}
-            to="/"
+            to="/dashboard"
             startIcon={<HomeIcon />}
             size="large"
           >

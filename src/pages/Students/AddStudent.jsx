@@ -60,7 +60,7 @@ const AddStudent = () => {
         await studentAPI.create(studentData);
         
         enqueueSnackbar('Student added successfully!', { variant: 'success' });
-        navigate('/students');
+        navigate('/dashboard/students');
       } catch (error) {
         console.error('Error adding student:', error);
         const errorMessage = error.response?.data?.error || 
@@ -162,7 +162,7 @@ const AddStudent = () => {
       <Box sx={{ my: 4 }}>
         <Button
           startIcon={<ArrowBack />}
-          onClick={() => navigate('/students')}
+          onClick={() => navigate('/dashboard/students')}
           sx={{ mb: 3 }}
         >
           Back to Students
@@ -180,7 +180,7 @@ const AddStudent = () => {
               <Button
                 type="button"
                 variant="outlined"
-                onClick={() => navigate('/students')}
+                onClick={() => navigate('/dashboard/students')}
                 sx={{ mr: 2 }}
                 disabled={isSubmitting}
               >

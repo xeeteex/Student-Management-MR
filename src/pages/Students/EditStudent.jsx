@@ -81,7 +81,7 @@ const EditStudent = () => {
         enqueueSnackbar('Student created successfully', { variant: 'success' });
       }
       
-      navigate('/students');
+      navigate('/dashboard/students');
     } catch (error) {
       console.error('Error saving student:', error);
       enqueueSnackbar(
@@ -215,7 +215,7 @@ const EditStudent = () => {
             <Button
               type="button"
               variant="outlined"
-              onClick={() => navigate('/students')}
+              onClick={() => navigate('/dashboard/students')}
               sx={{ mr: 2 }}
             >
               Cancel

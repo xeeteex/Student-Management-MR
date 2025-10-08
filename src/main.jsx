@@ -6,7 +6,7 @@ import { ThemeProvider, createTheme } from '@mui/material/styles';
 import CssBaseline from '@mui/material/CssBaseline';
 import { SnackbarProvider } from 'notistack';
 import { AuthProvider } from './context/AuthContext';
-import App from './App';
+import App from './App.jsx';
 import './index.css';
 
 const queryClient = new QueryClient();

@@ -70,8 +70,8 @@ const Login = () => {
   const location = useLocation();                // Access current route location
   const { enqueueSnackbar } = useSnackbar();     // Toast notifications
 
-  // Get the redirect path after successful login (defaults to home)
-  const from = location.state?.from?.pathname || '/';
+  // Get the redirect path after successful login (defaults to dashboard)
+  const from = location.state?.from?.pathname || '/dashboard';
 
   /**
    * Effect: Handle authentication state changes
@@ -96,6 +96,7 @@ const Login = () => {
     initialValues: {
       email: '',      // User's email address
       password: '',   // User's password
+      rememberMe: false, // Remember me option
     },
     
     // Form validation schema using Yup
@@ -116,21 +117,50 @@ const Login = () => {
      * @param {Object} values - Form values (email, password)
      */
     onSubmit: async (values) => {
+      console.log('Form submitted with values:', values);
       // Reset previous errors and set loading state
       setError('');
       setIsSubmitting(true);
       
       try {
         // Attempt to log in using the authentication context
-        await login(values);
+        console.log('Calling login function...');
+        const result = await login(values);
+        console.log('Login result:', result);
         
-        // Show success message and redirect
-        enqueueSnackbar('Login successful!', { variant: 'success' });
-        navigate(from, { replace: true });
+        if (result && result.success) {
+          // Show success message and redirect
+          console.log('Login successful, redirecting to:', from);
+          enqueueSnackbar('Login successful!', { variant: 'success' });
+          navigate(from, { replace: true });
+        } else {
+          throw new Error('Login failed: No success status in response');
+        }
       } catch (err) {
         // Handle login errors
-        console.error('Login error:', err);
-        const errorMessage = err.response?.data?.message || 'Login failed. Please try again.';
+        console.error('Login error details:', {
+          message: err.message,
+          response: err.response?.data,
+          status: err.response?.status
+        });
+        
+        let errorMessage = 'Login failed. Please try again.';
+        
+        if (err.response) {
+          // The request was made and the server responded with a status code
+          // that falls out of the range of 2xx
+          errorMessage = err.response.data?.message || 
+                       `Server error: ${err.response.status} - ${err.response.statusText}`;
+        } else if (err.request) {
+          // The request was made but no response was received
+          console.error('No response received:', err.request);
+          errorMessage = 'No response from server. Please check your connection.';
+        } else {
+          // Something happened in setting up the request that triggered an Error
+          console.error('Error setting up request:', err.message);
+          errorMessage = `Error: ${err.message}`;
+        }
+        
         setError(errorMessage);
         enqueueSnackbar(errorMessage, { variant: 'error' });
       } finally {
@@ -396,32 +426,7 @@ const Login = () => {
                   )}
                 </Button>
 
-                {/* Footer Text */}
-                <Box sx={{ textAlign: 'center' }}>
-                  <Typography 
-                    variant="body2" 
-                    sx={{ 
-                      color: '#64748b',
-                      mb: 1
-                    }}
-                  >
-                    Don't have an account?
-                  </Typography>
-                  <Link
-                    component={RouterLink}
-                    to="/register"
-                    sx={{
-                      color: '#2563eb',
-                      textDecoration: 'none',
-                      fontWeight: 600,
-                      '&:hover': {
-                        textDecoration: 'underline',
-                      },
-                    }}
-                  >
-                    Create One!
-                  </Link>
-                </Box>
+                {/* Registration is only available to authenticated users */}
               </Box>
             </Box>
           </Grid>

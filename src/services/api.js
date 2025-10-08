@@ -1,7 +1,15 @@
 import axios from 'axios';
 
-// Using the deployed backend URL
+// Using local development server
 const API_URL = 'https://student-management-backend-mr.onrender.com';
+
+// Create a public API instance that doesn't require authentication
+const publicAPI = axios.create({
+  baseURL: `${API_URL}/api`,
+  headers: {
+    'Content-Type': 'application/json',
+  },
+});
 
 const api = axios.create({
   baseURL: `${API_URL}/api`,
@@ -13,22 +21,22 @@ const api = axios.create({
 // Request interceptor to add auth token to requests
 api.interceptors.request.use(
   (config) => {
-    // Skip auth for login and register endpoints
-    if (config.url.includes('/auth/')) {
+    // Only skip auth for login endpoint
+    if (config.url === '/auth/login') {
       return config;
     }
     
     const token = localStorage.getItem('token');
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
-    } else {
-      // Only redirect if not already on the login page
-      if (!window.location.pathname.includes('/login')) {
-        window.location.href = '/login';
-      }
-      return Promise.reject(new Error('No authentication token found'));
+      return config;
     }
-    return config;
+    
+    // If no token and not on login page, redirect to login
+    if (!window.location.pathname.includes('/login')) {
+      window.location.href = '/login';
+    }
+    return Promise.reject(new Error('No authentication token found'));
   },
   (error) => {
     return Promise.reject(error);
@@ -53,18 +61,22 @@ api.interceptors.response.use(
 
 // Auth API
 export const authAPI = {
-  register: (userData) => api.post('/auth/register', userData, { skipAuth: true }),
-  login: (credentials) => api.post('/auth/login', credentials, { skipAuth: true }),
+  register: (userData) => api.post('/auth/register', userData),
+  login: (credentials) => publicAPI.post('/auth/login', credentials),
   getMe: () => api.get('/auth/me'),
 };
 
 // Students API
 export const studentAPI = {
-  getAll: () => api.get('/students'),
+  // Use publicAPI for public endpoints that don't require authentication
+  getAll: () => publicAPI.get('/students'),
+  // Keep other methods using the authenticated api instance
   getById: (id) => api.get(`/students/${id}`),
   create: (data) => api.post('/students', data),
   update: (id, data) => api.put(`/students/${id}`, data),
   delete: (id) => api.delete(`/students/${id}`),
 };
 
+// Export both API instances
+export { publicAPI };
 export default api;
